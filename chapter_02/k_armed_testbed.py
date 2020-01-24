@@ -61,7 +61,7 @@ class Bandit(metaclass=abc.ABCMeta):
         self.Q = {a: self.initial_value for a in range(self.k)}
         self.N = {a: 0 for a in range(self.k)}
         if self.stepsize == "avg":
-            self.alpha = lambda a: 1.0 / self.N[a]
+            self.alpha = lambda a: 1 if self.N[a] == 0 else 1.0 / self.N[a]
         else:
             self.alpha = lambda a: self.stepsize
 
@@ -149,17 +149,15 @@ class GradientBandit(Bandit):
 
     def label(self):
         bsln = "with" if self.use_baseline else "without"
-        return r"Gradient ($\alpha = %g$, %s baseline)" % (self.stepsize, bsln)
+        return r"Gradient ($\alpha = %s$, %s baseline)" % (self.stepsize, bsln)
 
 
 def argmax(func, args):
     """Simple argmax function """
     m, inc = -float("inf"), None
     for a in args:
-        v = func(a)
-        if v > m:
-            m = v
-            inc = a
+        if (v := func(a)) > m:
+            m, inc = v, a
     return inc
 
 
